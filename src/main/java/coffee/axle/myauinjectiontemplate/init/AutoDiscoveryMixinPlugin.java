@@ -1,4 +1,4 @@
-package com.github.axlecoffee.myauinjectiontemplate.init;
+package coffee.axle.myauinjectiontemplate.init;
 
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
