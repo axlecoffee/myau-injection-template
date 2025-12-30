@@ -1,11 +1,12 @@
 package coffee.axle.myauinjectiontemplate.mixin;
 
-import coffee.axle.myauinjectiontemplate.util.TestModuleRenderer;
-import net.minecraft.client.renderer.EntityRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import coffee.axle.myauinjectiontemplate.util.TestModuleRenderer;
+import net.minecraft.client.renderer.EntityRenderer;
 
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer {
