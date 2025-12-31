@@ -3,7 +3,9 @@ package coffee.axle.myauinjectiontemplate;
 import coffee.axle.myauinjectiontemplate.features.Feature;
 import coffee.axle.myauinjectiontemplate.features.TestCommand;
 import coffee.axle.myauinjectiontemplate.features.TestModule;
-import coffee.axle.myauinjectiontemplate.hooks.ClientHook;
+import coffee.axle.myauinjectiontemplate.hooks.MyauHook;
+import coffee.axle.myauinjectiontemplate.hooks.MyauModuleCreator;
+import coffee.axle.myauinjectiontemplate.hooks.MyauModuleManager;
 import coffee.axle.myauinjectiontemplate.util.MyauLogger;
 
 import java.util.ArrayList;
@@ -11,11 +13,18 @@ import java.util.List;
 
 public class FeatureManager {
     private static final List<Feature> features = new ArrayList<>();
-    private final ClientHook clientHook = ClientHook.getInstance();
+
+    private final MyauHook hook;
+    private final MyauModuleCreator creator;
+    private final MyauModuleManager manager;
 
     public FeatureManager() {
-        registerFeature(new TestCommand());
-        registerFeature(new TestModule());
+        this.hook = MyauHook.getInstance();
+        this.creator = new MyauModuleCreator(hook);
+        this.manager = new MyauModuleManager(hook);
+
+        registerFeature(new TestCommand(creator, manager));
+        registerFeature(new TestModule(hook, creator, manager));
     }
 
     private void registerFeature(Feature feature) {
@@ -23,7 +32,7 @@ public class FeatureManager {
     }
 
     public boolean initializeAll() {
-        if (!clientHook.initialize()) {
+        if (!hook.initialize()) {
             MyauLogger.log("FM_HOOK_FAIL");
             return false;
         }
@@ -58,5 +67,17 @@ public class FeatureManager {
 
     public List<Feature> getFeatures() {
         return features;
+    }
+
+    public MyauHook getHook() {
+        return hook;
+    }
+
+    public MyauModuleCreator getCreator() {
+        return creator;
+    }
+
+    public MyauModuleManager getManager() {
+        return manager;
     }
 }

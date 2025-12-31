@@ -1,6 +1,6 @@
 package coffee.axle.myauinjectiontemplate
 
-import coffee.axle.myauinjectiontemplate.hooks.ClientHook
+import coffee.axle.myauinjectiontemplate.hooks.MyauHook
 import coffee.axle.myauinjectiontemplate.util.MyauLogger
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
@@ -15,6 +15,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 
 @Mod(modid = "myauinjectiontemplate", useMetadata = true)
 class MyauInjectionTemplate {
+    companion object {
+        const val MOD_NAME = "MyauInjectionTemplate"
+        const val LOG_PREFIX = "[MyauInjectionTemplate]"
+    }
+
     private var featureManager: FeatureManager? = null
     private var initialized = false
     public var mc = Minecraft.getMinecraft()
@@ -22,6 +27,8 @@ class MyauInjectionTemplate {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        // Set the logger prefix early
+        MyauLogger.setPrefix(LOG_PREFIX)
         MyauLogger.log("INIT_START")
         MinecraftForge.EVENT_BUS.register(this)
     }
@@ -37,9 +44,9 @@ class MyauInjectionTemplate {
             val lineHeight = fr.FONT_HEIGHT + 1
             val yPos = event.gui.height - 10 - brandingHeight - (2 * lineHeight)
 
-            fr.drawStringWithShadow("Myau Injection Template (" + featureManager?.features?.count()+ ") Modules", 2F, yPos.toFloat(), 0xFFFFFF)
+            fr.drawStringWithShadow("$MOD_NAME (" + featureManager?.features?.count()+ ") Modules", 2F, yPos.toFloat(), 0xFFFFFF)
             
-            val myauModuleCount = ClientHook.getInstance()?.moduleCount ?: 0
+            val myauModuleCount = featureManager?.manager?.moduleCount ?: 0
             fr.drawStringWithShadow("Myau Modules: $myauModuleCount", 2F, (yPos + lineHeight).toFloat(), 0xFFFFFF)
         }
     }

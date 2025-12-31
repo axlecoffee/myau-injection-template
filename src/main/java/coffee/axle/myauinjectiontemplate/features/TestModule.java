@@ -1,6 +1,8 @@
 package coffee.axle.myauinjectiontemplate.features;
 
-import coffee.axle.myauinjectiontemplate.hooks.ClientHook;
+import coffee.axle.myauinjectiontemplate.hooks.MyauHook;
+import coffee.axle.myauinjectiontemplate.hooks.MyauModuleCreator;
+import coffee.axle.myauinjectiontemplate.hooks.MyauModuleManager;
 import coffee.axle.myauinjectiontemplate.util.MyauLogger;
 import coffee.axle.myauinjectiontemplate.util.TestModuleRenderer;
 import net.minecraft.client.Minecraft;
@@ -13,10 +15,19 @@ import java.util.ArrayList;
 
 public class TestModule implements Feature {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private final ClientHook hook = ClientHook.getInstance();
+
+    private final MyauHook hook;
+    private final MyauModuleCreator creator;
+    private final MyauModuleManager manager;
 
     private Object moduleInstance;
     private Object useMixinProperty;
+
+    public TestModule(MyauHook hook, MyauModuleCreator creator, MyauModuleManager manager) {
+        this.hook = hook;
+        this.creator = creator;
+        this.manager = manager;
+    }
 
     @Override
     public String getName() {
@@ -26,27 +37,27 @@ public class TestModule implements Feature {
     @Override
     public boolean initialize() {
         try {
-            // Create the module instance
-            this.moduleInstance = this.hook.createModule(this.getName());
-            this.hook.injectModule(this.moduleInstance, TestModule.class);
+            // Create the module instance with origin
+            this.moduleInstance = creator.createModule(this.getName(), "myauinjectiontemplate");
+            creator.injectModule(this.moduleInstance, TestModule.class);
 
             // Create properties
-            this.useMixinProperty = this.hook.createBooleanProperty("use-mixin", false);
-            this.hook.registerProperties(this.moduleInstance, this.useMixinProperty);
+            this.useMixinProperty = creator.createBooleanProperty("use-mixin", false);
+            creator.registerProperties(this.moduleInstance, this.useMixinProperty);
 
             // Reload module command so it appears in .myau list
-            this.hook.reloadModuleCommand();
+            manager.reloadModuleCommand();
 
             // Register this command handler
             ArrayList<String> commandNames = new ArrayList<>();
             commandNames.add("testmodule");
-            this.hook.registerCommand(commandNames, this::handleCommand);
+            creator.registerCommand(commandNames, this::handleCommand);
 
             // Register Forge event bus for rendering and tick updates
             MinecraftForge.EVENT_BUS.register(this);
 
             // Register enable/disable callbacks
-            this.hook.registerModuleCallbacks(
+            hook.registerModuleCallbacks(
                     this.moduleInstance,
                     () -> {
                         TestModuleRenderer.setModuleEnabled(true);
@@ -69,9 +80,9 @@ public class TestModule implements Feature {
     private void handleCommand(ArrayList<String> args) {
         if (args.isEmpty()) {
             boolean useMixin = getUseMixin();
-            hook.sendMessage("&7Usage: &f.testmodule <use-mixin> <true/false>");
-            hook.sendMessage("&7Current use-mixin: &f" + useMixin);
-            hook.sendMessage("&7Box color: " + (useMixin ? "&aGREEN (mixin)" : "&5PURPLE (direct)"));
+            manager.sendMessage("&7Usage: &f.testmodule <use-mixin> <true/false>");
+            manager.sendMessage("&7Current use-mixin: &f" + useMixin);
+            manager.sendMessage("&7Box color: " + (useMixin ? "&aGREEN (mixin)" : "&5PURPLE (direct)"));
             return;
         }
 
@@ -80,10 +91,10 @@ public class TestModule implements Feature {
             boolean value = args.get(1).equalsIgnoreCase("true");
             setUseMixin(value);
             TestModuleRenderer.setMixinEnabled(value);
-            hook.sendMessage("&aSet use-mixin to: &f" + value);
-            hook.sendMessage("&7Box will now be: " + (value ? "&aGREEN (mixin)" : "&5PURPLE (direct)"));
+            manager.sendMessage("&aSet use-mixin to: &f" + value);
+            manager.sendMessage("&7Box will now be: " + (value ? "&aGREEN (mixin)" : "&5PURPLE (direct)"));
         } else {
-            hook.sendMessage("&cUnknown option: &f" + subCommand);
+            manager.sendMessage("&cUnknown option: &f" + subCommand);
         }
     }
 
@@ -93,7 +104,7 @@ public class TestModule implements Feature {
             return;
 
         // Sync module enabled state with renderer
-        boolean isEnabled = this.hook.isModuleEnabled(this.getName());
+        boolean isEnabled = manager.isModuleEnabled(this.getName());
         TestModuleRenderer.setModuleEnabled(isEnabled);
 
         // Sync use-mixin property with renderer
@@ -109,7 +120,7 @@ public class TestModule implements Feature {
 
     private boolean getUseMixin() {
         try {
-            return (Boolean) this.hook.getPropertyValue(this.useMixinProperty);
+            return (Boolean) manager.getPropertyValue(this.useMixinProperty);
         } catch (Exception e) {
             return false;
         }
@@ -132,7 +143,7 @@ public class TestModule implements Feature {
             MinecraftForge.EVENT_BUS.unregister(this);
             TestModuleRenderer.setModuleEnabled(false);
             if (this.moduleInstance != null) {
-                this.hook.setModuleEnabled(this.moduleInstance, false);
+                manager.setModuleEnabled(this.moduleInstance, false);
             }
         } catch (Exception e) {
             e.printStackTrace();

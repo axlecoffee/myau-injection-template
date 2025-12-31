@@ -94,7 +94,7 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
 
     // If you don't want to log in with your real minecraft account, remove this line
-    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
+    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.2")
 
 }
 

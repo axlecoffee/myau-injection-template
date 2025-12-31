@@ -4,11 +4,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MyauLogger {
-    private static final String PREFIX = "[MyauInjectionTemplate]";
+    private static String PREFIX = "[MyauInjectionTemplate]";
     private static final Map<String, String> ERROR_TO_MSG = new HashMap<>();
 
     static {
         initializeCodes();
+    }
+
+    /**
+     * Set the prefix/label used in all log messages.
+     * Call this early in initialization (e.g., in your mod's init).
+     */
+    public static void setPrefix(String prefix) {
+        PREFIX = prefix;
+    }
+
+    public static String getPrefix() {
+        return PREFIX;
     }
 
     private static void initializeCodes() {
@@ -17,6 +29,7 @@ public class MyauLogger {
         ERROR_TO_MSG.put("HOOK_SUCCESS", "Hook initialized successfully");
         ERROR_TO_MSG.put("HOOK_FAIL", "Hook initialization failed");
         ERROR_TO_MSG.put("MODULE_NOT_FOUND", "Module not found");
+        ERROR_TO_MSG.put("MODULE_FAIL", "Module initialization failed");
         ERROR_TO_MSG.put("PROPERTY_NOT_FOUND", "Property not found");
         ERROR_TO_MSG.put("FEATURE_INIT", "Initializing feature...");
         ERROR_TO_MSG.put("FEATURE_SUCCESS", "Feature initialized!");
@@ -29,6 +42,7 @@ public class MyauLogger {
         ERROR_TO_MSG.put("FM_NO_TUNA", "No features loaded");
         ERROR_TO_MSG.put("INIT_START", "Starting initialization...");
         ERROR_TO_MSG.put("CRITICAL_ERROR", "Critical error!");
+        ERROR_TO_MSG.put("CALLBACK_FAIL", "Callback execution failed");
         ERROR_TO_MSG.put("ALL_GOOD", "All good!");
     }
 
